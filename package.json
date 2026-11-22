@@ -4,6 +4,9 @@
   "private": true,
   "description": "API REST de TokenFLY - autenticacion, cuestionarios y foro moderado",
   "main": "dist/server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
