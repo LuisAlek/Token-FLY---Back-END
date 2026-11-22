@@ -5,6 +5,15 @@ import type {
   QuizStatus,
   QuizSummary,
 } from '../domain/quiz.entity';
+import type { QuizProgress } from '../domain/quizProgress.entity';
+
+export interface QuizProgressSummaryDto {
+  completed: boolean;
+  inProgress: boolean;
+  answeredCount: number;
+  scorePercent: number;
+  completedAt: Date | null;
+}
 
 export interface PublicQuizSummaryDto {
   id: string;
@@ -13,6 +22,7 @@ export interface PublicQuizSummaryDto {
   questionCount: number;
   status: QuizStatus;
   updatedAt: Date;
+  progress: QuizProgressSummaryDto;
 }
 
 export interface PublicQuizOptionDto {
@@ -34,6 +44,19 @@ export interface PublicQuizDetailDto {
   questions: PublicQuizQuestionDto[];
 }
 
+export interface QuizProgressDto {
+  quizId: string;
+  currentIndex: number;
+  answers: { questionId: string; selectedKeys: OptionKey[] }[];
+  correctByQuestion: Record<string, OptionKey>;
+  completed: boolean;
+  inProgress: boolean;
+  answeredCount: number;
+  scorePercent: number;
+  completedAt: Date | null;
+  updatedAt: Date | null;
+}
+
 export interface AdminQuestionDto {
   id: string;
   statement: string;
@@ -53,7 +76,7 @@ export interface AdminQuizDetailDto {
 }
 
 export class QuizPresenter {
-  toPublicSummary(quiz: Quiz): PublicQuizSummaryDto {
+  toPublicSummary(quiz: Quiz, progress: QuizProgress | null = null): PublicQuizSummaryDto {
     return {
       id: quiz.id,
       title: quiz.title,
@@ -61,6 +84,31 @@ export class QuizPresenter {
       questionCount: quiz.questionCount,
       status: quiz.status,
       updatedAt: quiz.updatedAt,
+      progress: {
+        completed: progress?.completed ?? false,
+        inProgress: progress?.inProgress ?? false,
+        answeredCount: progress?.answeredCount ?? 0,
+        scorePercent: progress?.scorePercent ?? 0,
+        completedAt: progress?.completedAt ?? null,
+      },
+    };
+  }
+
+  toProgress(quizId: string, progress: QuizProgress | null): QuizProgressDto {
+    return {
+      quizId,
+      currentIndex: progress?.currentIndex ?? 0,
+      answers: progress?.answers.map((answer) => ({
+        questionId: answer.questionId,
+        selectedKeys: [...answer.selectedKeys],
+      })) ?? [],
+      correctByQuestion: { ...(progress?.correctByQuestion ?? {}) },
+      completed: progress?.completed ?? false,
+      inProgress: progress?.inProgress ?? false,
+      answeredCount: progress?.answeredCount ?? 0,
+      scorePercent: progress?.scorePercent ?? 0,
+      completedAt: progress?.completedAt ?? null,
+      updatedAt: progress?.updatedAt ?? null,
     };
   }
 

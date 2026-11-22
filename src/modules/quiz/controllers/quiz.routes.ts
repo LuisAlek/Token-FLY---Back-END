@@ -8,6 +8,8 @@ export const quizRouter = Router();
 quizRouter.use(container.authGuard.handle);
 quizRouter.get('/', quizController.list);
 quizRouter.get('/:quizId', quizController.detail);
+quizRouter.get('/:quizId/progress', quizController.progress);
+quizRouter.put('/:quizId/progress', quizController.saveProgress);
 quizRouter.post('/:quizId/check-answer', quizController.check);
 quizRouter.post('/:quizId/submit', quizController.submit);
 

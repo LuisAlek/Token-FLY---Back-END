@@ -1,5 +1,6 @@
 import { MongoUserRepository } from '../../modules/auth/infrastructure/MongoUserRepository';
 import { MongoQuizRepository } from '../../modules/quiz/infrastructure/MongoQuizRepository';
+import { MongoQuizProgressRepository } from '../../modules/quiz/infrastructure/MongoQuizProgressRepository';
 import { MongoCommentRepository } from '../../modules/forum/infrastructure/MongoCommentRepository';
 import { AuthGuard, RoleGuard } from '../../modules/auth/infrastructure/authMiddleware';
 import { BcryptPasswordHasher } from './security/password';
@@ -14,7 +15,9 @@ import { QuizFactory } from '../../modules/quiz/application/quizFactory';
 import { QuizPresenter } from '../../modules/quiz/application/quiz.dto';
 import { ListPublishedQuizzesUseCase } from '../../modules/quiz/application/listPublishedQuizzes';
 import { GetPublishedQuizUseCase } from '../../modules/quiz/application/getPublishedQuiz';
+import { GetQuizProgressUseCase } from '../../modules/quiz/application/getQuizProgress';
 import { CheckAnswerUseCase } from '../../modules/quiz/application/checkAnswer';
+import { SaveQuizProgressUseCase } from '../../modules/quiz/application/saveQuizProgress';
 import { SubmitQuizUseCase } from '../../modules/quiz/application/submitQuiz';
 import {
   CreateQuizUseCase,
@@ -47,6 +50,7 @@ export class AppContainer {
   constructor() {
     const users = new MongoUserRepository();
     const quizzes = new MongoQuizRepository();
+    const quizProgress = new MongoQuizProgressRepository();
     const comments = new MongoCommentRepository();
 
     const hasher = new BcryptPasswordHasher();
@@ -70,10 +74,12 @@ export class AppContainer {
     );
 
     this.quizController = new QuizController(
-      new ListPublishedQuizzesUseCase(quizzes, quizPresenter),
+      new ListPublishedQuizzesUseCase(quizzes, quizProgress, quizPresenter),
       new GetPublishedQuizUseCase(quizzes, quizPresenter),
       new CheckAnswerUseCase(quizzes, questionFactory),
-      new SubmitQuizUseCase(quizzes, quizEvaluator),
+      new SubmitQuizUseCase(quizzes, quizEvaluator, quizProgress),
+      new GetQuizProgressUseCase(quizzes, quizProgress, quizPresenter),
+      new SaveQuizProgressUseCase(quizzes, quizProgress, quizPresenter),
     );
 
     this.adminQuizController = new AdminQuizController(

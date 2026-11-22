@@ -67,3 +67,17 @@ export const submitQuizSchema = z.object({
     )
     .min(1, 'Debes enviar al menos una respuesta.'),
 });
+
+export const saveQuizProgressSchema = z.object({
+  currentIndex: z.number().int().min(0).max(49).default(0),
+  answers: z
+    .array(
+      z.object({
+        questionId: objectIdSchema,
+        selectedKeys: z.array(optionKeySchema).min(1).max(OPTION_KEYS.length),
+      }),
+    )
+    .max(50)
+    .default([]),
+  correctByQuestion: z.record(z.string(), optionKeySchema).default({}),
+});
