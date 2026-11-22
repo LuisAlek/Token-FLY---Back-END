@@ -13,7 +13,14 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().optional(),
 });
 
-const parsed = envSchema.safeParse(process.env);
+const rawEnv = Object.fromEntries(
+  Object.entries(process.env).map(([key, value]) => [
+    key,
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  ]),
+);
+
+const parsed = envSchema.safeParse(rawEnv);
 
 if (!parsed.success) {
   const details = parsed.error.issues
